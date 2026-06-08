@@ -6,7 +6,7 @@ on:
       tag:
         description: GHCR tag to publish
         required: true
-        default: theta-chatterbox-turbo-017-cu124
+        default: theta-chatterbox-turbo-019-cu124
   push:
     branches:
       - main
@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and push
         run: |
-          TAG="${{ github.event.inputs.tag || 'theta-chatterbox-turbo-017-cu124' }}"
+          TAG="${{ github.event.inputs.tag || 'theta-chatterbox-turbo-019-cu124' }}"
           docker buildx version
           docker buildx create --name theta-chatterbox-builder --use || docker buildx use theta-chatterbox-builder
           docker buildx inspect --bootstrap
