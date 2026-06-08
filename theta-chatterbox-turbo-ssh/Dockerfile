@@ -21,9 +21,13 @@ RUN python -m pip install --upgrade pip setuptools wheel && \
 
 RUN python - <<'PY'
 import json
+import perth
 import torch
 import torchaudio
 from chatterbox.tts_turbo import ChatterboxTurboTTS
+
+if getattr(perth, "PerthImplicitWatermarker", None) is None:
+    perth.PerthImplicitWatermarker = perth.DummyWatermarker
 
 print(json.dumps({
     "torch": torch.__version__,
