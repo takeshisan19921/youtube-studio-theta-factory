@@ -21,7 +21,10 @@ RUN python -m pip install --upgrade pip setuptools wheel && \
 
 RUN python - <<'PY'
 import json
+import os
 import perth
+import subprocess
+import sys
 import torch
 import torchaudio
 from chatterbox.tts_turbo import ChatterboxTurboTTS
@@ -42,6 +45,24 @@ print(json.dumps({
     "chatterbox_turbo_cached": True,
     "sample_rate": getattr(model, "sr", None),
 }, sort_keys=True), flush=True)
+
+offline_code = r"""
+import json
+import perth
+from chatterbox.tts_turbo import ChatterboxTurboTTS
+
+if getattr(perth, "PerthImplicitWatermarker", None) is None:
+    perth.PerthImplicitWatermarker = perth.DummyWatermarker
+
+model = ChatterboxTurboTTS.from_pretrained(device="cpu")
+print(json.dumps({
+    "chatterbox_turbo_offline_cache_ok": True,
+    "sample_rate": getattr(model, "sr", None),
+}, sort_keys=True), flush=True)
+"""
+offline_env = dict(os.environ)
+offline_env["HF_HUB_OFFLINE"] = "1"
+subprocess.run([sys.executable, "-c", offline_code], env=offline_env, check=True)
 PY
 
 COPY entrypoint.sh /usr/local/bin/theta-chatterbox-turbo-entrypoint
